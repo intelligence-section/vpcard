@@ -91,6 +91,7 @@ input:focus,select:focus{outline:2px solid var(--pr);border-color:transparent}
 <div class="g">
 <div class="h"><label for="fn">ชื่อ</label><input id="fn" autocomplete="off"></div>
 <div class="h"><label for="ln">นามสกุล</label><input id="ln" autocomplete="off"></div>
+<div class="f"><label for="unit">หน่วย</label><input id="unit" autocomplete="off" placeholder="เช่น ป.พัน.1 / ศปร."></div>
 <div class="f"><label for="pid">เลขบัตรประชาชน 13 หลัก</label><input id="pid" inputmode="numeric" maxlength="13" placeholder="ตัวเลข 13 หลัก"></div>
 <div class="f"><label for="tel">เบอร์โทรศัพท์</label><input id="tel" inputmode="tel" maxlength="10" placeholder="0812345678"></div>
 <div class="f"><label for="addr">ที่อยู่</label><input id="addr" autocomplete="off"></div>
@@ -130,7 +131,7 @@ function okPid(s){if(!/^\d{13}$/.test(s))return false;let t=0;for(let i=0;i<12;i
 function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
 function fit(t,wt,sz,mw,mn=16){let s=sz;do{ctx.font=`${wt} ${s}px ${FN}`;if(ctx.measureText(t).width<=mw)break;s-=1}while(s>mn);return s}
 function txt(t,x,y,wt,sz,col,mw){ctx.fillStyle=col;fit(t,wt,sz,mw);if(ctx.measureText(t).width>mw){const a=[...t];while(a.length>1&&ctx.measureText(a.join('')+'…').width>mw)a.pop();t=a.join('')+'…'}ctx.fillText(t,x,y)}
-function wrap(t,x,y,mw,lh,n){ctx.font=`600 29px ${FN}`;const ch=[...t];let ln='',i=0,out=[];for(const c of ch){if(ctx.measureText(ln+c).width>mw){out.push(ln);ln=c}else ln+=c}out.push(ln);out.slice(0,n).forEach((l,k)=>{if(k==n-1&&out.length>n)l=l.slice(0,-1)+'…';ctx.fillText(l,x,y+k*lh)})}
+function wrap(t,x,y,mw,lh,n,fs=29){ctx.font=`600 ${fs}px ${FN}`;const ch=[...t];let ln='',i=0,out=[];for(const c of ch){if(ctx.measureText(ln+c).width>mw){out.push(ln);ln=c}else ln+=c}out.push(ln);out.slice(0,n).forEach((l,k)=>{if(k==n-1&&out.length>n)l=l.slice(0,-1)+'…';ctx.fillText(l,x,y+k*lh)})}
 function fpid(s){if(!s)return '';const m=$('mask').checked;const p=[s.slice(0,1),s.slice(1,5),s.slice(5,10),s.slice(10,12),s.slice(12)];if(m)p[2]=p[2].replace(/\d/g,'x');return p.filter(Boolean).join('-')}
 function draw(){
 const v=k=>$(k).value.trim(),MU='#6b7186',NV='#1c2f78',ph=(t,e)=>t||e;
@@ -160,12 +161,12 @@ ctx.fillStyle='#d4af37';ctx.fillRect(X,206,MW,3);
 const L=(t,x,y)=>{ctx.fillStyle=MU;ctx.font=`400 22px ${FN}`;ctx.fillText(t,x,y)};
 L('เลขบัตรประชาชน',X,240);txt(fpid(v('pid'))||'-',X,274,'700',34,'#1b2440',310);
 L('โทรศัพท์',X+330,240);txt(v('tel')||'-',X+330,274,'700',34,'#1b2440',230);
-L('ที่อยู่',X,304);ctx.fillStyle='#1b2440';wrap(v('addr')||'-',X,336,MW,32,2);
+L('ที่อยู่',X,304);L('หน่วย',X+350,304);ctx.fillStyle='#1b2440';wrap(v('addr')||'-',X,334,330,29,3,27);wrap(v('unit')||'-',X+350,334,210,32,2,29);
 
 const nv=$('novh').checked;
-const C=(lb,val,x,y,w,wt,sz,col)=>{L(lb,x,y-32);txt(val||'-',x,y,wt,sz,col||'#1b2440',w)};C('ยานพาหนะ',nv?'ไม่มียานพาหนะ':v('vtype'),X,438,160,'700',30);C('รุ่นรถ',nv?'':v('vmodel'),X+180,438,230,'700',30);C('สีรถ',nv?'':v('vcolor'),X+430,438,130,'700',30);C('ทะเบียนรถ',nv?'':v('vplate'),X,504,160,'700',30);C('จังหวัด',nv?'':v('vprov'),X+180,504,230,'700',30);
+const C=(lb,val,x,y,w,wt,sz,col)=>{L(lb,x,y-32);txt(val||'-',x,y,wt,sz,col||'#1b2440',w)};C('ยานพาหนะ',nv?'ไม่มียานพาหนะ':v('vtype'),X,454,160,'700',30);C('รุ่นรถ',nv?'':v('vmodel'),X+180,454,230,'700',30);C('สีรถ',nv?'':v('vcolor'),X+430,454,130,'700',30);C('ทะเบียนรถ',nv?'':v('vplate'),X,518,160,'700',30);C('จังหวัด',nv?'':v('vprov'),X+180,518,230,'700',30);
 
-L(CATS[CAT][1],X,540);txt(v('shop')||'-',X,572,'700',30,'#1b2440',MW);
+L(CATS[CAT][1],X,550);txt(v('shop')||'-',X,582,'700',30,'#1b2440',MW);
 // photo
 const px=910,py=140,pw=232,ph2=310;
 ctx.fillStyle='#d4af37';rr(px-8,py-8,pw+16,ph2+16,18);ctx.fill();
@@ -183,6 +184,7 @@ function upd(){if(!$('until').value)$('until').value=today();if(savedSig!==null&
 ['vtype','vmodel','vcolor','vplate','vprov'].forEach(k=>$(k).disabled=$('novh').checked);
 draw();const m=[];
 if(!$('fn').value.trim()||!$('ln').value.trim())m.push('ชื่อ-นามสกุล');
+if(!$('unit').value.trim())m.push('หน่วย');
 if(!okPid($('pid').value))m.push('เลขบัตรประชาชน (13 หลักและต้องถูกต้อง)');
 if(!/^0\d{8,9}$/.test($('tel').value))m.push('เบอร์โทรศัพท์');
 if(!$('addr').value.trim())m.push('ที่อยู่');
@@ -221,7 +223,7 @@ $('gd').onclick=async()=>{
  try{
   const v=k=>$(k).value.trim(),nm=(v('fn')+' '+v('ln')).trim(),nv=$('novh').checked,d=new Date();
   const now=d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false});
-  const row=['',now,({temp:'บัตรเข้า-ออกชั่วคราว',merch:'พ่อค้า/แม่ค้า ภายในค่ายฯ',family:'ครอบครัวกำลังพล ภายในค่ายฯ'})[KIND],v('no'),nm,gp(v('pid')),gt(v('tel')),v('addr'),{shop:'ร้านค้า / ขายสินค้า',student:'นักเรียนหลักสูตร',build:'โครงการก่อสร้าง',family:'ครอบครัวกำลังพล'}[CAT],v('shop'),nv?'ไม่มียานพาหนะ':v('vtype'),nv?'':v('vmodel'),nv?'':v('vcolor'),nv?'':v('vplate'),nv?'':v('vprov'),fmt($('until').value)];
+  const row=['',now,({temp:'บัตรเข้า-ออกชั่วคราว',merch:'พ่อค้า/แม่ค้า ภายในค่ายฯ',family:'ครอบครัวกำลังพล ภายในค่ายฯ'})[KIND],v('no'),nm,v('unit'),gp(v('pid')),gt(v('tel')),v('addr'),{shop:'ร้านค้า / ขายสินค้า',student:'นักเรียนหลักสูตร',build:'โครงการก่อสร้าง',family:'ครอบครัวกำลังพล'}[CAT],v('shop'),nv?'ไม่มียานพาหนะ':v('vtype'),nv?'':v('vmodel'),nv?'':v('vcolor'),nv?'':v('vplate'),nv?'':v('vprov'),fmt($('until').value)];
   try{const LG=JSON.parse(localStorage.getItem('vp_log')||'[]');LG.push(row);localStorage.setItem('vp_log',JSON.stringify(LG))}catch(e){}
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),30000);let unk=false;
   try{const r=await fetch(url,{method:'POST',body:JSON.stringify({token:TOKEN,cat:CAT,row}),signal:ctl.signal});const j=await r.json();if(!j||!j.ok)throw new Error((j&&j.error)||'server error')}
@@ -233,9 +235,9 @@ $('gd').onclick=async()=>{
 
 $('csv').onclick=()=>{let L=[];try{L=JSON.parse(localStorage.getItem('vp_log')||'[]')}catch(e){}
  const s=$('gs');if(!L.length){s.style.color='var(--er)';s.textContent='ยังไม่มีข้อมูลสำรองในเครื่องนี้';return}
- const H=['ลำดับ','วันที่-เวลาบันทึก','ประเภทบัตร','เลขที่บัตร','ชื่อ-นามสกุล','เลขบัตรประชาชน','โทรศัพท์','ที่อยู่','ประเภทผู้ขอ','ร้านค้า/สินค้า/หลักสูตร/โครงการ','ประเภทยานพาหนะ','รุ่นรถ','สีรถ','ทะเบียนรถ','จังหวัด','ใช้ได้ถึง'];
+ const H=['ลำดับ','วันที่-เวลาบันทึก','ประเภทบัตร','เลขที่บัตร','ชื่อ-นามสกุล','หน่วย','เลขบัตรประชาชน','โทรศัพท์','ที่อยู่','ประเภทผู้ขอ','ร้านค้า/สินค้า/หลักสูตร/โครงการ','ประเภทยานพาหนะ','รุ่นรถ','สีรถ','ทะเบียนรถ','จังหวัด','ใช้ได้ถึง'];
  const q=x=>'"'+String(x).replace(/"/g,'""')+'"';
- const rows=[H].concat(L.map((r,i)=>[String(i+1)].concat(r.slice(1))));
+ const rows=[H].concat(L.map((r,i)=>{r=r.slice();if(r.length<17)r.splice(5,0,'');return [String(i+1)].concat(r.slice(1))}));
  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
  const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='visitor-list-backup.csv';document.body.appendChild(a);a.click();a.remove();
  s.style.color='var(--ok)';s.textContent='✓ ดาวน์โหลดรายชื่อสำรอง '+L.length+' รายการแล้ว'};
