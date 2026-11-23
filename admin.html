@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>จัดการผู้ใช้งาน</title>
+<style>
+:root{color-scheme:light dark;--pri:#1a56ff}
+body{margin:0;font-family:"Noto Sans Thai",system-ui,sans-serif;background:Canvas;color:CanvasText;display:none}
+.w{max-width:1100px;margin:0 auto;padding:24px 16px}
+.top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+h2{margin:0}.s{opacity:.7;font-size:13px}
+button,input,select{font:inherit;padding:9px 12px;border-radius:8px;border:1px solid #8886;background:transparent;color:inherit}
+.p{background:var(--pri);color:#fff;border:0;cursor:pointer}.g{cursor:pointer}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.st{flex:1 1 150px;padding:14px;border-radius:12px;border:1px solid #8883}.st b{display:block;font-size:24px}
+#f{display:none;gap:8px;flex-wrap:wrap;padding:14px;border:1px solid #8883;border-radius:12px;margin-bottom:16px}
+#f input,#f select{flex:1 1 170px}
+.tw{overflow-x:auto;border:1px solid #8883;border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #8882}th{font-size:12px;opacity:.7}
+.pill{padding:2px 10px;border-radius:99px;font-size:12px}.on{background:#dcfce7;color:#15803d}.off{background:#fee2e2;color:#b91c1c}
+.sub{font-size:12px;opacity:.7}#m{color:#b91c1c;margin:8px 0;font-size:13px}
+</style></head><body>
+<div class="w">
+  <div class="top"><div><h2>จัดการผู้ใช้งาน</h2><span class="s" id="who"></span></div>
+    <div><button class="g" onclick="location.href=HOME_PAGE">ไปหน้าบัตร</button> <button class="g" onclick="logout()">ออกจากระบบ</button> <button class="p" onclick="f.style.display=f.style.display==='flex'?'none':'flex'">+ สร้างผู้ใช้ใหม่</button></div></div>
+  <div class="stats"><div class="st"><span class="s">ผู้ใช้ทั้งหมด</span><b id="s1">0</b></div><div class="st"><span class="s">Active</span><b id="s2">0</b></div><div class="st"><span class="s">ระงับ</span><b id="s3">0</b></div></div>
+  <div id="f"><input id="n" placeholder="ชื่อผู้ใช้"><input id="u" placeholder="ชื่อหน่วย"><input id="c" placeholder="รหัสหน่วย"><input id="e" type="email" placeholder="อีเมล"><input id="p" type="password" placeholder="รหัสผ่าน (8 ตัวขึ้นไป)" autocomplete="new-password"><select id="r"><option>Data Entry</option><option>Admin</option></select><button class="p" onclick="create()">บันทึก</button></div>
+  <div id="m"></div>
+  <div class="tw"><table><thead><tr><th>ข้อมูลหน่วย</th><th>อีเมล</th><th>Role</th><th>สถานะ</th><th>วันที่สร้าง</th><th>จัดการ</th></tr></thead><tbody id="tb"></tbody></table></div>
+</div>
+<script src="auth.js"></script>
+<script>
+const $=i=>document.getElementById(i), f=$('f');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let me,users=[];
+const msg=t=>$('m').textContent=t||'';
+async function load(){ try{ users=(await api('listUsers')).users; render(); }catch(e){msg(e.message)} }
+function render(){
+  $('s1').textContent=users.length; $('s2').textContent=users.filter(u=>u.status==='Active').length; $('s3').textContent=users.filter(u=>u.status!=='Active').length;
+  $('tb').innerHTML=users.map((u,i)=>`<tr><td><b>${esc(u.name)}</b><div class="sub">${esc(u.unit)} · ${esc(u.code)}</div></td><td>${esc(u.email)}</td><td>${esc(u.role)}</td>
+  <td><span class="pill ${u.status==='Active'?'on':'off'}">${esc(u.status)}</span></td><td>${new Date(u.created).toLocaleString('th-TH')}</td>
+  <td><button class="g" ${u.email===me.email?'disabled':''} onclick="toggle(${i})">${u.status==='Active'?'⏻ ระงับ':'⏻ เปิดใช้งาน'}</button></td></tr>`).join('');
+}
+async function toggle(i){
+  const u=users[i], block=u.status==='Active';
+  if(!confirm((block?'ระงับ ':'เปิดใช้งาน ')+u.name+' ?'))return;
+  try{ await api('setStatus',{email:u.email,status:block?'Blocked':'Active'}); load(); }catch(e){msg(e.message)}
+}
+async function create(){
+  try{
+    await api('createUser',{name:$('n').value,unit:$('u').value,code:$('c').value,email:$('e').value,password:$('p').value,role:$('r').value});
+    ['n','u','c','e','p'].forEach(k=>$(k).value=''); f.style.display='none'; msg(''); load();
+  }catch(e){msg(e.message)}
+}
+requireLogin(true).then(u=>{ if(!u)return; me=u; $('who').textContent=u.name; document.body.style.display='block'; load(); });
+</script></body></html>
