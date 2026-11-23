@@ -113,7 +113,7 @@ input:focus,select:focus{outline:2px solid var(--pr);border-color:transparent}
 <p class="note">ไฟล์ที่ได้ขนาด 1181×650 px ที่ 300 dpi พิมพ์ออกมาได้ 10×5.5 ซม. พอดี (ล็อคขนาดไว้แล้ว)</p></section>
 </main>
 <div id="pw"><img id="pimg" alt=""></div>
-<script>requireLogin(['Admin','Family']).then(u => { if (u) { applyRole(u, ['family']); document.body.style.display = ''; } });</script>
+<script><script>requireLogin(['Admin','Family']).then(u => { if (u) { applyRole(u, ['family']); document.body.style.display = ''; } });</script>
 // ===== ตั้งค่า =====
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';   // ลิงก์ Web app จาก Apps Script (หรือวางในช่องตั้งค่าบนหน้าเว็บก็ได้)
 const TOKEN = sessionStorage.getItem('vp_token') || '';   // ต้องตรงกับ TOKEN ในไฟล์ webapp.gs
