@@ -1,5 +1,5 @@
 // 
-const AUTH_API = https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec
+const AUTH_API = 'https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';
 const LOGIN_PAGE = 'login.html', HOME_PAGE = 'index.html';
 // บทบาท -> ประเภทบัตรที่ใช้ได้ / หน้าแรกหลังล็อกอิน
 const ROLE_CATS = { Admin: ['shop','build','student','family'], Student: ['student'], Family: ['family'] };
