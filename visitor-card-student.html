@@ -74,7 +74,9 @@ input:focus,select:focus{outline:2px solid var(--pr);border-color:transparent}
 <p class="note">ไฟล์ที่ได้ขนาด 1181×650 px ที่ 300 dpi พิมพ์ออกมาได้ 10×5.5 ซม. พอดี (ล็อคขนาดไว้แล้ว)</p></section>
 </main>
 <div id="pw"><img id="pimg" alt=""></div>
-<script><script>requireLogin(['Admin','Student']).then(u => { if (u) { applyRole(u, ['student']); document.body.style.display = ''; } });</script>
+<script src="auth.js"></script>
+<script>requireLogin(['Admin','Student']).then(u => { if (u) { applyRole(u, ['student']); document.body.style.display = ''; } });</script>
+<script>
 // ===== ตั้งค่า =====
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';   // ลิงก์ Web app จาก Apps Script (หรือวางในช่องตั้งค่าบนหน้าเว็บก็ได้)
 const TOKEN = sessionStorage.getItem('vp_token') || '';   // ต้องตรงกับ TOKEN ในไฟล์ webapp.gs
@@ -206,6 +208,4 @@ reset();
 Promise.all([document.fonts.load(`400 20px Sarabun`),document.fonts.load(`600 20px Sarabun`),document.fonts.load(`700 20px Sarabun`),document.fonts.load(`800 20px Sarabun`)]).then(draw).catch(()=>{});
 document.fonts.ready.then(draw);
 </script>
-<script src="auth.js"></script>
-<script>requireLogin().then(u => { if (u) document.body.style.display = ''; });</script>
 </body></html>
