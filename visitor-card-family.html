@@ -116,7 +116,7 @@ input:focus,select:focus{outline:2px solid var(--pr);border-color:transparent}
 <script>
 // ===== ตั้งค่า =====
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';   // ลิงก์ Web app จาก Apps Script (หรือวางในช่องตั้งค่าบนหน้าเว็บก็ได้)
-const TOKEN='vp-e6211316616a2fbb';   // ต้องตรงกับ TOKEN ในไฟล์ webapp.gs
+const TOKEN = sessionStorage.getItem('vp_token') || '';   // ต้องตรงกับ TOKEN ในไฟล์ webapp.gs
 // ====================
 
 // ล็อคขนาดบัตร 10 x 5.5 ซม. ที่ 300 dpi = 1181 x 650 px (ห้ามแก้)
