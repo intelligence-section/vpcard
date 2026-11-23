@@ -1,4 +1,4 @@
-// ใส่ URL ของ Web App (ลงท้าย /exec) ตรงนี้ที่เดียว
+// 
 const AUTH_API = 'https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';
 const LOGIN_PAGE = 'login.html', HOME_PAGE = 'index.html';
 const ERR = {
