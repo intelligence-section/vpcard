@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>จัดการผู้ใช้งาน - บัตรผ่านเข้า-ออก ค่ายภูมิพล</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--side:#1f3a8a;--side2:#2e4a9c;--gold:#c9a227;--bg:#f4f1e8;--sf:#fff;--tx:#1b2440;--mu:#6b7186;--bd:#ddd6c2;--pr:#1f3a8a;--ok:#0a7a3d;--okbg:#dff5e6;--er:#b3261e;--erbg:#fde4e2;--sw:270px}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{font-family:Sarabun,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--tx);display:none}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* sidebar */
+#side{position:fixed;inset:0 auto 0 0;width:var(--sw);background:var(--side);color:#fff;display:flex;flex-direction:column;z-index:30;transition:transform .2s}
+.prof{display:flex;gap:12px;align-items:center;padding:16px;border-bottom:1px solid var(--side2)}
+.av{width:44px;height:44px;border-radius:50%;background:var(--gold);color:#1b2440;display:grid;place-items:center;font-weight:800;font-size:18px}
+.prof b{display:block;font-size:14px}.prof small{color:#bfe9cc;font:12px ui-monospace,Menlo,monospace}
+.sec{padding:16px 16px 6px;color:#b9c6ee;font-size:12px;font-weight:700}
+nav{flex:1;overflow:auto;padding:0 8px}
+nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;margin:2px 0;border-radius:8px;color:#fff;text-decoration:none;font-size:14px;border-left:3px solid transparent}
+nav a:hover{background:var(--side2)}nav a.on{background:rgba(255,255,255,.14);border-left-color:var(--gold)}
+.out{border-top:1px solid var(--side2);padding:10px 8px}.out a{cursor:pointer}
+/* top bar */
+#top{position:fixed;left:var(--sw);right:0;top:0;height:60px;background:#fff;border-bottom:3px solid var(--gold);display:flex;align-items:center;gap:12px;padding:0 16px;z-index:20}#top img{height:42px;width:auto}
+#top h2{margin:0;font-size:19px;font-weight:800;color:var(--pr);flex:1}
+#top .who{font-size:13px;font-weight:700;color:var(--pr);display:flex;align-items:center;gap:8px}
+#bt{display:none;background:none;border:0;color:var(--pr);cursor:pointer;padding:4px}
+/* content */
+main{margin-left:var(--sw);padding:84px 24px 40px}
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0 18px}
+.head h1{margin:0;font-size:26px}.head p{margin:4px 0 0;color:var(--mu);font-size:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:8px;background:var(--pr);color:#fff;padding:11px 18px;font:700 14px Sarabun,sans-serif;cursor:pointer}
+.btn.ghost{background:#ebe6d6;color:#5a5f73}.btn.sm{padding:9px 14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.st{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(27,36,64,.05)}
+.ic{width:50px;height:50px;border-radius:12px;display:grid;place-items:center;flex:none}
+.ic svg{width:26px;height:26px}
+.ic.b{background:#e5edff;color:#2a62d6}.ic.g{background:#dff5e6;color:#0a7a3d}.ic.r{background:#fde4e2;color:#c23a31}.ic.o{background:#f7edc8;color:#9a7b0a}
+.st small{color:var(--mu);font-size:13px}.st b{display:block;font-size:28px;line-height:1.1}
+.bar{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sr{flex:1;min-width:220px;position:relative}.sr svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mu)}
+.sr input{padding-left:40px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--tx)}
+.bar select{width:auto;min-width:150px}
+.tw{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{text-align:left;font-size:12px;letter-spacing:.04em;color:var(--mu);padding:14px 16px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:14px 16px;border-bottom:1px solid var(--bd);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.un b{display:block}.un .tag{display:inline-block;margin:4px 0 2px;padding:1px 8px;border-radius:5px;background:#e3e9fb;color:#1f3a8a;font-size:12px;font-weight:700}.un small{display:block;color:var(--mu);font-size:12px}
+.pill{display:inline-block;padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700}
+.pill.role{background:#e3e9fb;color:#1f3a8a}.pill.ok{background:var(--okbg);color:var(--ok)}.pill.off{background:var(--erbg);color:var(--er)}
+.ac{display:flex;gap:6px;justify-content:flex-end}
+.ib{width:36px;height:36px;border-radius:8px;border:0;background:none;color:#8b90a3;cursor:pointer;display:grid;place-items:center}
+.ib:hover{background:#efeadb;color:var(--tx)}.ib.pw.on:hover{color:var(--er)}.ib.pw.off:hover{color:var(--ok)}
+.empty{text-align:center;color:var(--mu);padding:36px}
+/* modal */
+#md{position:fixed;inset:0;background:rgba(20,16,26,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.card{background:#fff;border-radius:14px;width:100%;max-width:460px;max-height:92vh;overflow:auto;padding:22px}
+.card h3{margin:0 0 14px;font-size:19px;display:flex;justify-content:space-between;align-items:center}
+.card label{display:block;font-weight:700;font-size:13px;margin:12px 0 5px}.card .hint{color:var(--mu);font-size:12px;margin-top:4px}
+.foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+#err{color:var(--er);font-size:13px;min-height:18px;margin-top:10px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;display:none;z-index:99}
+@media(max-width:900px){#side{transform:translateX(-100%)}#side.open{transform:none}#top{left:0}#bt{display:block}main{margin-left:0;padding:84px 14px 40px}.stats{grid-template-columns:repeat(2,1fr)}.who span{display:none}}
+</style></head><body>
+<aside id="side">
+  <div class="prof"><div class="av" id="av">A</div><div><b id="pn">-</b><small>● admin</small></div></div>
+  <div class="sec">เมนูหลัก</div>
+  <nav>
+    <a href="visitor-card-app.html"><svg class="i" data-i="card"></svg>ออกบัตร ทั่วไป (ร้านค้า / โครงการก่อสร้าง)</a>
+    <a href="visitor-card-student.html"><svg class="i" data-i="grad"></svg>ออกบัตร นักเรียนหลักสูตร</a>
+    <a href="visitor-card-family.html"><svg class="i" data-i="home"></svg>ออกบัตร ครอบครัวกำลังพล</a>
+    <a href="admin-users.html" class="on"><svg class="i" data-i="user"></svg>จัดการผู้ใช้</a>
+  </nav>
+  <div class="out"><nav><a onclick="vpLogout()"><svg class="i" data-i="logout"></svg>ออกจากระบบ</a></nav></div>
+</aside>
+<header id="top"><button id="bt" aria-label="เมนู"><svg class="i" data-i="menu"></svg></button><img src="logo.png" alt="" onerror="this.remove()"><h2>ระบบบัตรผ่านเข้า - ออก ค่ายภูมิพล</h2><div class="who"><svg class="i" data-i="user"></svg><span id="wn"></span></div></header>
+<main>
+  <div class="head"><div><h1>จัดการผู้ใช้งาน</h1><p>รายการบัญชีผู้ใช้งานและสิทธิ์การเข้าถึง</p></div>
+    <button class="btn" id="nw"><svg class="i" data-i="userplus"></svg>สร้างผู้ใช้ใหม่</button></div>
+  <div class="stats">
+    <div class="st"><div class="ic b"><svg class="i" data-i="users"></svg></div><div><small>ผู้ใช้ทั้งหมด</small><b id="s1">0</b></div></div>
+    <div class="st"><div class="ic g"><svg class="i" data-i="usercheck"></svg></div><div><small>พร้อมใช้งาน (Active)</small><b id="s2">0</b></div></div>
+    <div class="st"><div class="ic r"><svg class="i" data-i="userx"></svg></div><div><small>ระงับการใช้งาน</small><b id="s3">0</b></div></div>
+    <div class="st"><div class="ic o"><svg class="i" data-i="building"></svg></div><div><small>จำนวนหน่วยทั้งหมด</small><b id="s4">0</b></div></div>
+  </div>
+  <div class="bar">
+    <div class="sr"><svg class="i" data-i="search"></svg><input id="q" placeholder="ค้นหาชื่อ, หน่วย, อีเมล..."></div>
+    <select id="fr"><option value="">Role (ทั้งหมด)</option><option value="admin">Admin</option><option value="student">นักเรียนหลักสูตร</option><option value="family">ครอบครัวกำลังพล</option></select>
+    <select id="fs"><option value="">สถานะ (ทั้งหมด)</option><option value="1">Active</option><option value="0">ระงับ</option></select>
+    <button class="btn ghost" id="cl">ล้างตัวกรอง</button>
+  </div>
+  <div class="tw"><table><thead><tr><th>ข้อมูลผู้ใช้</th><th>อีเมล</th><th>ROLE</th><th>สถานะ</th><th>วันที่สร้าง</th><th style="text-align:right">จัดการ</th></tr></thead><tbody id="tb"><tr><td colspan="6" class="empty">กำลังโหลด...</td></tr></tbody></table></div>
+</main>
+<div id="md"><div class="card" role="dialog" aria-modal="true">
+  <h3><span id="mt"></span><button class="ib" id="mx" aria-label="ปิด"><svg class="i" data-i="x"></svg></button></h3>
+  <label for="fe">อีเมล (ใช้ล็อกอิน)</label><input id="fe" type="email" autocomplete="off">
+  <label for="fn">ชื่อ-ยศ</label><input id="fn" placeholder="เช่น พ.ต. สมชาย ใจดี">
+  <label for="fu">หน่วย</label><input id="fu" placeholder="เช่น กยข.ศป.">
+  <label for="fo">Role (สิทธิ์)</label><select id="fo"><option value="student">นักเรียนหลักสูตร</option><option value="family">ครอบครัวกำลังพล</option><option value="admin">Admin (ทำได้ทุกอย่าง)</option></select>
+  <label for="fp" id="lp">รหัสผ่าน</label><input id="fp" type="password" autocomplete="new-password"><div class="hint" id="hp">อย่างน้อย 8 ตัวอักษร</div>
+  <div id="err" role="alert"></div>
+  <div class="foot"><button class="btn ghost" id="mc">ยกเลิก</button><button class="btn" id="ms">บันทึก</button></div>
+</div></div>
+<div id="toast"></div>
+<script>
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';
+let SESS=null;try{SESS=JSON.parse(sessionStorage.getItem('vp_sess')||'null')}catch(e){}
+if(!SESS||!SESS.token||SESS.role!=='admin'||(SESS.exp&&Date.now()>SESS.exp)){try{sessionStorage.removeItem('vp_sess')}catch(e){}location.replace('login.html')}
+function vpLogout(){try{sessionStorage.removeItem('vp_sess')}catch(e){}location.replace('login.html')}
+document.body.style.display='block';
+const $=id=>document.getElementById(id);
+const P={card:'<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M13 10h5M13 14h4"/>',grad:'<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>',home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',userplus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',usercheck:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',userx:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',pencil:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>',power:'<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><path d="M12 2v10"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>'};
+const ico=n=>'<svg class="i" viewBox="0 0 24 24">'+P[n]+'</svg>';
+document.querySelectorAll('svg.i[data-i]').forEach(s=>{s.setAttribute('viewBox','0 0 24 24');s.innerHTML=P[s.dataset.i]});
+const ROLE={admin:'Admin',student:'นักเรียนหลักสูตร',family:'ครอบครัวกำลังพล'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2600)}
+async function api(body){
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),30000);
+  try{const r=await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify(Object.assign({s:SESS.token},body)),signal:ctl.signal});const j=await r.json();
+    if(j&&j.error==='unauthorized'){vpLogout();return j}return j}
+  catch(e){return {ok:false,error:e.name==='AbortError'?'เซิร์ฟเวอร์ไม่ตอบกลับ':'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้'}}finally{clearTimeout(tm)}
+}
+const nm=SESS.name||SESS.email||'admin';$('pn').textContent=nm;$('wn').textContent=nm;$('av').textContent=(nm.trim()[0]||'A').toUpperCase();
+$('bt').onclick=()=>$('side').classList.toggle('open');
+let U=[],ME=(SESS.email||'').toLowerCase();
+async function load(){
+  const j=await api({action:'admin_list'});
+  if(!j||!j.ok){$('tb').innerHTML='<tr><td colspan="6" class="empty">'+esc((j&&j.error)||'โหลดข้อมูลไม่สำเร็จ')+' (ถ้าเพิ่งติดตั้ง ให้ Deploy auth.gs เวอร์ชันล่าสุดก่อน)</td></tr>';return}
+  U=j.users;if(j.me)ME=j.me;render();
+}
+function fmt(d){if(!d)return '-';const x=new Date(d);return isNaN(x)?'-':x.toLocaleString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function render(){
+  $('s1').textContent=U.length;$('s2').textContent=U.filter(u=>u.active).length;$('s3').textContent=U.filter(u=>!u.active).length;
+  $('s4').textContent=new Set(U.map(u=>u.unit.trim()).filter(Boolean)).size;
+  const q=$('q').value.trim().toLowerCase(),fr=$('fr').value,fs=$('fs').value;
+  const L=U.filter(u=>(!fr||u.role===fr)&&(!fs||(fs==='1')===u.active)&&(!q||(u.name+' '+u.unit+' '+u.email).toLowerCase().includes(q)));
+  $('tb').innerHTML=L.length?L.map(u=>{const me=u.email.toLowerCase()===ME;return '<tr><td class="un"><b>'+esc(u.name||'-')+(me?' (คุณ)':'')+'</b>'+(u.unit?'<span class="tag">'+esc(u.unit)+'</span>':'')+'</td><td>'+esc(u.email)+'</td><td><span class="pill role">'+esc(ROLE[u.role]||u.role)+'</span></td><td><span class="pill '+(u.active?'ok':'off')+'">'+(u.active?'Active':'ระงับ')+'</span></td><td>'+fmt(u.created)+'</td><td><div class="ac"><button class="ib" title="ดูรายละเอียด" data-a="v" data-e="'+esc(u.email)+'">'+ico('eye')+'</button><button class="ib" title="แก้ไข" data-a="e" data-e="'+esc(u.email)+'">'+ico('pencil')+'</button><button class="ib pw '+(u.active?'on':'off')+'" title="'+(u.active?'ระงับการใช้งาน':'เปิดใช้งาน')+'" '+(me?'disabled style="opacity:.3;cursor:not-allowed"':'')+' data-a="t" data-e="'+esc(u.email)+'">'+ico('power')+'</button></div></td></tr>'}).join(''):'<tr><td colspan="6" class="empty">ไม่พบข้อมูล</td></tr>';
+}
+['q','fr','fs'].forEach(id=>$(id).addEventListener('input',render));
+$('cl').onclick=()=>{$('q').value='';$('fr').value='';$('fs').value='';render()};
+$('tb').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-a]');if(!b||b.disabled)return;
+  const u=U.find(x=>x.email===b.dataset.e);if(!u)return;
+  if(b.dataset.a==='t'){
+    if(!confirm((u.active?'ระงับ':'เปิดใช้งาน')+'บัญชี '+u.email+' ?'))return;
+    b.disabled=true;const j=await api({action:'admin_toggle',email:u.email});
+    if(j&&j.ok){toast(j.active?'เปิดใช้งานแล้ว':'ระงับบัญชีแล้ว');load()}else{toast((j&&j.error)||'ไม่สำเร็จ');b.disabled=false}
+  }else openM(b.dataset.a==='v'?'view':'edit',u);
+});
+let MODE='create';
+function openM(mode,u){
+  MODE=mode;$('err').textContent='';
+  const ro=mode==='view';u=u||{email:'',name:'',unit:'',role:'student'};
+  $('mt').textContent=mode==='create'?'สร้างผู้ใช้ใหม่':mode==='edit'?'แก้ไขผู้ใช้':'รายละเอียดผู้ใช้';
+  $('fe').value=u.email;$('fe').disabled=mode!=='create';$('fn').value=u.name;$('fu').value=u.unit;$('fo').value=u.role;$('fp').value='';
+  ['fn','fu','fo','fp'].forEach(i=>$(i).disabled=ro);
+  $('lp').style.display=$('fp').style.display=$('hp').style.display=ro?'none':'';
+  $('lp').textContent=mode==='create'?'รหัสผ่าน':'รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)';
+  $('ms').style.display=ro?'none':'';$('mc').textContent=ro?'ปิด':'ยกเลิก';
+  $('md').style.display='flex';setTimeout(()=>(mode==='create'?$('fe'):$('fn')).focus(),30);
+}
+const closeM=()=>$('md').style.display='none';
+$('mx').onclick=$('mc').onclick=closeM;$('md').addEventListener('mousedown',e=>{if(e.target===$('md'))closeM()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+$('nw').onclick=()=>openM('create');
+$('ms').onclick=async()=>{
+  const b=$('ms'),em=$('fe').value.trim(),pw=$('fp').value;
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){$('err').textContent='อีเมลไม่ถูกต้อง';return}
+  if(MODE==='create'&&pw.length<8||pw&&pw.length<8){$('err').textContent='รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';return}
+  b.disabled=true;$('err').textContent='';
+  const j=await api({action:'admin_save',email:em,name:$('fn').value,unit:$('fu').value,role:$('fo').value,password:pw});
+  b.disabled=false;
+  if(j&&j.ok){closeM();toast(j.created?'สร้างผู้ใช้แล้ว':'บันทึกแล้ว');load()}else $('err').textContent=(j&&j.error)||'บันทึกไม่สำเร็จ';
+};
+load();
+</script></body></html>
