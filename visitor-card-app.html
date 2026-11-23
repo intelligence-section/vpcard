@@ -70,7 +70,7 @@ input:focus,select:focus{outline:2px solid var(--pr);border-color:transparent}
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbyx8smVvvVD8n0DTGKe0pBZHLVeZD2yIbwZniG7JQzXQ5iTbDzrFc6iapYIxdelliEs/exec';
 // ===== ตรวจสิทธิ์ (ฝั่งหน้าเว็บ ใช้แค่พาไปหน้าล็อกอิน; ตัวกันจริงอยู่ที่ Apps Script) =====
 const ALLOW=['admin'];
-let SESS=null;try{SESS=JSON.parse(sessionStorage.getItem('vp_sess')||'null')}catch(e){}
+let SESS=null;try{const TOKEN = sessionStorage.getItem('vp_token') || '';}catch(e){}
 if(!SESS||!SESS.token||!ALLOW.includes(SESS.role)||(SESS.exp&&Date.now()>SESS.exp)){try{sessionStorage.removeItem('vp_sess')}catch(e){}location.replace('login.html')}
 const TOKEN=SESS&&SESS.token||'';
 function vpLogout(){try{sessionStorage.removeItem('vp_sess')}catch(e){}location.replace('login.html')}
@@ -192,7 +192,11 @@ $('gd').onclick=async()=>{
   const row=['',now,({temp:'บัตรเข้า-ออกชั่วคราว',merch:'พ่อค้า/แม่ค้า ภายในค่ายฯ',family:'ครอบครัวกำลังพล ภายในค่ายฯ'})[KIND],v('no'),nm,v('unit'),gp(v('pid')),gt(v('tel')),v('addr'),{shop:'ร้านค้า / ขายสินค้า',student:'นักเรียนหลักสูตร',build:'โครงการก่อสร้าง',family:'ครอบครัวกำลังพล'}[CAT],v('shop'),nv?'ไม่มียานพาหนะ':v('vtype'),nv?'':v('vmodel'),nv?'':v('vcolor'),nv?'':v('vplate'),nv?'':v('vprov'),fmt($('until').value)];
   try{const LG=JSON.parse(localStorage.getItem('vp_log')||'[]');LG.push(row);localStorage.setItem('vp_log',JSON.stringify(LG))}catch(e){}
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),30000);let unk=false;
-  try{const r=await fetch(url,{method:'POST',body:JSON.stringify({s:TOKEN,cat:CAT,row}),signal:ctl.signal});const j=await r.json();if(!j||!j.ok)throw new Error((j&&j.error)||'server error')}
+  try{const r=await fetch(url,{
+  method:'POST',
+  body:JSON.stringify({token:TOKEN,cat:CAT,row}),
+  signal:ctl.signal
+});const j=await r.json();if(!j||!j.ok)throw new Error((j&&j.error)||'server error')}
   catch(e){if(e instanceof TypeError)unk=true;else throw e}
   clearTimeout(tm);
   savedSig=s0;s.style.color=unk?'var(--er)':'var(--ok)';s.textContent=(unk?'⚠ ส่งข้อมูลแล้ว แต่ยืนยันผลจากชีทไม่ได้ กรุณาไปตรวจแถวล่าสุดในชีท: ':'✓ บันทึกข้อมูลเรียบร้อยแล้ว: ')+nm;
