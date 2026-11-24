@@ -2,12 +2,12 @@
 <html lang="th"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>จัดการผู้ใช้งาน</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
 :root{color-scheme:light dark;--bg:#f4f1e8;--card:#fff;--ink:#14213d;--mut:#6b7385;--navy:#1e3a8a;--on:#fff;--soft:#e8eefb;--line:#e6e1d3;--gold:#e8b923;--red:#d92b2b;--ok:#15803d;--okbg:#dcf6e5;--off:#b42318;--offbg:#fde4e1;--shadow:0 4px 18px rgba(30,58,138,.08)}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1426;--card:#171e36;--ink:#eef1fa;--mut:#9aa3bd;--navy:#7d9bff;--on:#0f1426;--soft:#222c52;--line:#283052;--ok:#6ee7a0;--okbg:#14382a;--off:#ff9b90;--offbg:#44201d;--shadow:none}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai","Sarabun",Tahoma,sans-serif;font-size:14px;display:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai","Sarabun",Tahoma,sans-serif;font-size:14px;padding-bottom:env(safe-area-inset-bottom,0px)}
 header{background:linear-gradient(100deg,#14286b,#1e3a8a 60%,#2c4fb3);color:#fff;position:relative;padding-top:env(safe-area-inset-top,0px)}
 header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,var(--red) 0 33%,var(--gold) 33% 66%,#8a93a8 66%)}
 .bar{max-width:1120px;margin:auto;padding:16px 20px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -70,7 +70,7 @@ dialog::backdrop{background:rgba(15,20,38,.55)}
   <div><h1>บัตรผ่านเข้า - ออก ค่ายภูมิพล</h1><p>ศูนย์การทหารปืนใหญ่</p></div>
   <div class="sp"></div>
   <button class="hb" onclick="location.href=HOME_PAGE">ไปหน้าบัตร</button>
-  <button class="hb" onclick="logout()">ออกจากระบบ</button>
+  <button class="hb" onclick="uiLogout()">ออกจากระบบ</button>
 </div></header>
 <main>
   <div class="top">
@@ -88,7 +88,7 @@ dialog::backdrop{background:rgba(15,20,38,.55)}
   <div id="m"></div>
   <div class="wrap"><table>
     <thead><tr><th>ข้อมูลหน่วย</th><th>อีเมล</th><th>สิทธิ์การใช้งาน</th><th>สถานะ</th><th>วันที่สร้าง</th><th>จัดการ</th></tr></thead>
-    <tbody id="tb"></tbody>
+    <tbody id="tb"><tr><td colspan="6" class="empty">กำลังโหลดรายชื่อ...</td></tr></tbody>
   </table></div>
 </main>
 <dialog id="dg"><form id="fm">
@@ -99,7 +99,11 @@ dialog::backdrop{background:rgba(15,20,38,.55)}
 <script>
 const $=i=>document.getElementById(i);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let me,users=[],uiAct=null;
+const uiCK='vpAdminCache';
+let me,users=[],uiAct=null,uiLoaded=false;
+try{const c=JSON.parse(sessionStorage.getItem(uiCK)||'null');if(c&&c.me&&Array.isArray(c.users)){me=c.me;users=c.users;uiLoaded=true;}}catch(e){}
+const uiCache=()=>{try{sessionStorage.setItem(uiCK,JSON.stringify({me:me,users:users}))}catch(e){}};
+function uiLogout(){try{sessionStorage.removeItem(uiCK)}catch(e){} logout();}
 const RL={Admin:'Admin (ทุกประเภท)',Student:'นักเรียนหลักสูตร',Family:'ครอบครัวกำลังพล'};
 const uiRC={Admin:'r-a',Student:'r-s',Family:'r-f'};
 const uiERR={UNAUTHORIZED:'หมดเวลาการเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่',FORBIDDEN:'บัญชีนี้ไม่มีสิทธิ์ทำรายการนี้',EMAIL_EXISTS:'มีอีเมลนี้ในระบบแล้ว',WEAK_PASSWORD:'รหัสผ่านต้องมี 8 ตัวขึ้นไป',BAD_EMAIL:'รูปแบบอีเมลไม่ถูกต้อง',MISSING_FIELDS:'กรอกชื่อ ชื่อหน่วย และรหัสหน่วยให้ครบ',BAD_ROLE:'สิทธิ์ไม่ถูกต้อง',NOT_FOUND:'ไม่พบผู้ใช้นี้',CANNOT_BLOCK_SELF:'ระงับบัญชีตัวเองไม่ได้',CANNOT_CHANGE_SELF:'เปลี่ยนสิทธิ์ตัวเองไม่ได้'};
@@ -111,13 +115,14 @@ function uiToast(t){const e=$('toast');e.textContent=t;e.className='show';clearT
 Object.keys(RL).forEach(k=>$('fr').insertAdjacentHTML('beforeend',`<option value="${k}">${RL[k]}</option>`));
 
 function render(){
+  if(me)$('who').textContent=me.name;
   const on=users.filter(u=>u.status==='Active').length;
   const S=[['ผู้ใช้ทั้งหมด',users.length,'users','#1e3a8a','#e8eefb'],['พร้อมใช้งาน (Active)',on,'ok','#15803d','#dcf6e5'],['ระงับการใช้งาน',users.length-on,'no','#d92b2b','#fde4e1'],['จำนวนหน่วยทั้งหมด',new Set(users.map(u=>u.unit)).size,'b','#b8860b','#fff1c2']];
   $('stats').innerHTML=S.map(x=>`<div class="st" style="--c:${x[3]};--b:${x[4]}"><div class="ic">${uiSvg(x[2],22)}</div><div><small>${x[0]}</small><b>${x[1]}</b></div></div>`).join('');
   const q=$('q').value.trim().toLowerCase(),fr=$('fr').value,fs=$('fs').value;
   const list=users.map((u,i)=>[u,i]).filter(([u])=>(!q||[u.name,u.unit,u.code,u.email].join(' ').toLowerCase().includes(q))&&(!fr||u.role===fr)&&(!fs||(fs==='on')===(u.status==='Active')));
   $('tb').innerHTML=list.length?list.map(([u,i])=>{
-    const self=u.email===me.email,on=u.status==='Active';
+    const self=!!me&&u.email===me.email,on=u.status==='Active';
     return `<tr><td><b>${esc(u.name)}</b><span class="tag">${esc(u.unit)}</span><span class="code">${esc(u.code)}</span></td>
     <td>${esc(u.email)}</td><td><span class="role ${uiRC[u.role]||'r-x'}">${esc(uiRoleName(u.role))}</span></td>
     <td><span class="pill ${on?'on':'off'}"><i></i>${on?'Active':'ระงับ'}</span></td>
@@ -125,9 +130,9 @@ function render(){
     <td><div class="act"><button class="ib" title="ดูรายละเอียด" aria-label="ดูรายละเอียด" onclick="uiView(${i})">${uiSvg('eye')}</button>
     <button class="ib" title="เปลี่ยนสิทธิ์" aria-label="เปลี่ยนสิทธิ์" ${self?'disabled':''} onclick="uiEditRole(${i})">${uiSvg('pen')}</button>
     <button class="ib pw${on?'':' is-off'}" title="${on?'ระงับ':'เปิดใช้งาน'}" aria-label="${on?'ระงับ':'เปิดใช้งาน'}" ${self?'disabled':''} onclick="toggle(${i})">${uiSvg('pw')}</button></div></td></tr>`;
-  }).join(''):'<tr><td colspan="6" class="empty">ไม่พบผู้ใช้ที่ตรงกับตัวกรอง ลองล้างตัวกรองแล้วค้นหาใหม่</td></tr>';
+  }).join(''):'<tr><td colspan="6" class="empty">'+(uiLoaded?'ไม่พบผู้ใช้ที่ตรงกับตัวกรอง ลองล้างตัวกรองแล้วค้นหาใหม่':'กำลังโหลดรายชื่อ...')+'</td></tr>';
 }
-async function load(){ try{ users=(await api('listUsers')).users; $('m').textContent=''; render(); }catch(e){ $('m').textContent=uiSay(e); } }
+async function load(){ try{ users=(await api('listUsers')).users; uiLoaded=true; $('m').textContent=''; uiCache(); render(); }catch(e){ uiLoaded=true; if(e.message!=='UNAUTHORIZED')$('m').textContent=uiSay(e); render(); } }
 
 function uiDlg(title,body,foot,onSave){ $('dt').textContent=title; $('db').innerHTML=body; $('df').innerHTML=foot; $('de').textContent=''; uiAct=onSave||null; $('dg').showModal(); }
 const uiClose=()=>$('dg').close();
@@ -142,27 +147,35 @@ function uiView(i){
 function uiEditRole(i){
   const u=users[i];
   uiDlg('เปลี่ยนสิทธิ์การใช้งาน',`<div><b>${esc(u.name)}</b><div class="code" style="margin:0">${esc(u.email)}</div></div><label>สิทธิ์การใช้งาน<select id="r2">${Object.keys(RL).map(k=>`<option value="${k}" ${k===u.role?'selected':''}>${RL[k]}</option>`).join('')}</select></label>`,uiCANCEL+uiSAVE,async()=>{
-    try{ await api('setRole',{email:u.email,role:$('r2').value}); uiClose(); uiToast('บันทึกสิทธิ์แล้ว'); load(); }catch(e){ $('de').textContent=uiSay(e); }
+    const nr=$('r2').value,old=u.role; u.role=nr; uiCache(); uiClose(); render(); uiToast('บันทึกสิทธิ์แล้ว');
+    try{ await api('setRole',{email:u.email,role:nr}); }catch(e){ u.role=old; uiCache(); render(); $('m').textContent=uiSay(e); }
   });
 }
 async function toggle(i){
   const u=users[i],block=u.status==='Active';
   if(!confirm((block?'ระงับ ':'เปิดใช้งาน ')+u.name+' ?'))return;
-  try{ await api('setStatus',{email:u.email,status:block?'Blocked':'Active'}); uiToast(block?'ระงับผู้ใช้แล้ว':'เปิดใช้งานแล้ว'); load(); }catch(e){ $('m').textContent=uiSay(e); }
+  const old=u.status; u.status=block?'Blocked':'Active'; uiCache(); render(); uiToast(block?'ระงับผู้ใช้แล้ว':'เปิดใช้งานแล้ว');
+  try{ await api('setStatus',{email:u.email,status:u.status}); }catch(e){ u.status=old; uiCache(); render(); $('m').textContent=uiSay(e); }
 }
 function uiCreate(){
   uiDlg('สร้างผู้ใช้ใหม่',`<label>ชื่อผู้ใช้ (ยศ ชื่อ นามสกุล)<input id="n" autocomplete="off"></label><label>ชื่อหน่วย<input id="u" autocomplete="off"></label><label>รหัสหน่วย<input id="c" autocomplete="off"></label><label>อีเมล<input id="e" type="email" autocomplete="off"></label>
   <label>รหัสผ่าน (8 ตัวขึ้นไป)<div class="pr"><input id="p" type="password" autocomplete="new-password"><button type="button" class="btn2" onclick="$('p').type=$('p').type==='password'?'text':'password'">ดู</button><button type="button" class="btn2" onclick="uiGen()">สุ่ม</button></div></label>
   <label>สิทธิ์การใช้งาน<select id="r">${Object.keys(RL).map(k=>`<option value="${k}" ${k==='Student'?'selected':''}>${RL[k]}</option>`).join('')}</select></label>`,uiCANCEL+uiSAVE,async()=>{
+    const d={name:$('n').value.trim(),unit:$('u').value.trim(),code:$('c').value.trim(),email:$('e').value.trim().toLowerCase(),password:$('p').value,role:$('r').value};
+    const bad=!d.name||!d.unit||!d.code?'MISSING_FIELDS':!/^\S+@\S+\.\S+$/.test(d.email)?'BAD_EMAIL':d.password.length<8?'WEAK_PASSWORD':users.some(x=>String(x.email).toLowerCase()===d.email)?'EMAIL_EXISTS':'';
+    if(bad){ $('de').textContent=uiERR[bad]; return; }
+    const b=document.querySelector('#df .cta'); b.disabled=true; b.textContent='กำลังบันทึก...';
     try{
-      await api('createUser',{name:$('n').value,unit:$('u').value,code:$('c').value,email:$('e').value,password:$('p').value,role:$('r').value});
-      uiClose(); uiToast('สร้างผู้ใช้แล้ว'); load();
-    }catch(e){ $('de').textContent=uiSay(e); }
+      await api('createUser',d);
+      users.push({name:d.name,unit:d.unit,code:d.code,email:d.email,role:d.role,status:'Active',created:Date.now()});
+      uiCache(); uiClose(); render(); uiToast('สร้างผู้ใช้แล้ว'); load();
+    }catch(e){ b.disabled=false; b.textContent='บันทึก'; $('de').textContent=uiSay(e); }
   });
 }
 function uiGen(){ const a='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',r=crypto.getRandomValues(new Uint32Array(12)); $('p').value=[...r].map(x=>a[x%a.length]).join(''); $('p').type='text'; }
 
 ['q','fr','fs'].forEach(id=>$(id).addEventListener('input',render));
 $('clr').onclick=()=>{ $('q').value=''; $('fr').value=''; $('fs').value=''; render(); };
-requireLogin(true).then(u=>{ if(!u)return; me=u; $('who').textContent=u.name; document.body.style.display='block'; load(); });
+render(); load();
+requireLogin(true).then(u=>{ if(!u){ try{sessionStorage.removeItem(uiCK)}catch(e){} return; } me=u; uiCache(); render(); });
 </script></body></html>
